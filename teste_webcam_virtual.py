@@ -6,12 +6,19 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
+
+# Caminho direto para o vídeo
+VIDEO_PATH = r"C:\Users\ksolidpca2\Videos\Gravações de Ecrã\Gravação de Ecrã 2025-05-27 122454.mp4"
 
 class WebcamVirtual:
-    def __init__(self, video_path, width=1280, height=720, fps=30):
-        self.video = cv2.VideoCapture(video_path)
+    def __init__(self, width=1280, height=720, fps=30):
+        if not os.path.exists(VIDEO_PATH):
+            raise ValueError(f"Arquivo de vídeo não encontrado: {VIDEO_PATH}")
+            
+        self.video = cv2.VideoCapture(VIDEO_PATH)
         if not self.video.isOpened():
-            raise ValueError("Não foi possível abrir o vídeo")
+            raise ValueError(f"Não foi possível abrir o vídeo: {VIDEO_PATH}")
             
         # Configurar dimensões
         self.width = width
@@ -85,28 +92,28 @@ def executar_automacao_reconhecimento(url):
 if __name__ == "__main__":
     print("Sistema de Webcam Virtual para Reconhecimento Facial")
     print("-" * 50)
+    print(f"Usando vídeo: {VIDEO_PATH}")
+    print("-" * 50)
     
-    # Configurar vídeo
-    video_path = input("Digite o caminho do vídeo (ex: videos/seu_video.mp4): ")
-    
-    # Criar e iniciar webcam virtual em uma thread separada
     try:
-        webcam = WebcamVirtual(video_path)
+        # Criar e iniciar webcam virtual
+        print("\nIniciando sistema...")
+        print("1. Criando webcam virtual")
+        webcam = WebcamVirtual()
         
         # Solicitar URL do site
-        url = input("Digite a URL do site de reconhecimento facial: ")
+        url = input("\nDigite a URL do site de reconhecimento facial (ou pressione Enter para apenas testar o vídeo): ")
         
-        # Iniciar transmissão de vídeo
-        print("\nIniciando sistema...")
-        print("1. Iniciando transmissão de vídeo para webcam virtual")
-        print("2. Abrindo navegador para o site de reconhecimento")
-        print("\nPara interromper, pressione Ctrl+C")
+        print("\n2. Iniciando transmissão de vídeo")
+        print("Para interromper, pressione Ctrl+C")
         
         # Iniciar transmissão
-        webcam.iniciar_transmissao()
-        
-        # Executar automação
-        executar_automacao_reconhecimento(url)
+        if url:
+            # Se forneceu URL, executa automação
+            executar_automacao_reconhecimento(url)
+        else:
+            # Senão, apenas transmite o vídeo
+            webcam.iniciar_transmissao()
         
     except Exception as e:
         print(f"\nErro: {str(e)}")
