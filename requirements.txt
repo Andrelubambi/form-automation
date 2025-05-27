@@ -1,1 +1,4 @@
-selenium
+selenium>=4.16.0
+webdriver-manager>=4.0.1
+opencv-python>=4.8.1
+click>=8.1.7
