@@ -1,0 +1,26 @@
+{
+    "usuarios": [
+        {
+            "id": "user1",
+            "nome": "João Silva",
+            "email": "joao.silva@exemplo.com",
+            "telefone": "11999999999",
+            "cpf": "123.456.789-00",
+            "endereco": "Rua Exemplo, 123",
+            "cidade": "São Paulo",
+            "estado": "SP",
+            "cep": "01234-567"
+        },
+        {
+            "id": "user2",
+            "nome": "Maria Santos",
+            "email": "maria.santos@exemplo.com",
+            "telefone": "11988888888",
+            "cpf": "987.654.321-00",
+            "endereco": "Av Principal, 456",
+            "cidade": "Rio de Janeiro",
+            "estado": "RJ",
+            "cep": "20000-000"
+        }
+    ]
+}
