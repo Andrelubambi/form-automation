@@ -1,67 +1,75 @@
-# Sistema de Automação de Formulários
+# Scripts de Automação
 
-Este sistema permite automatizar o preenchimento de formulários web, monitorar sites em busca de vagas disponíveis e simular vídeos em tempo real.
+Este repositório contém scripts para automação de formulários e webcam virtual.
 
-## Funcionalidades
+## 1. Automação de Formulário de Passaporte
 
-- Monitoramento automático de sites
-- Simulação de vídeo em tempo real usando vídeos pré-gravados
-- API REST para controle do sistema
-- Suporte a múltiplos navegadores
+### Arquivos
+- `formulario_passaporte.html` - Página web com formulário de passaporte
+- `preenchimento_passaporte.user.js` - Script Tampermonkey para preenchimento automático
+
+### Como usar
+1. Inicie o servidor Python local:
+```bash
+python -m http.server 8000
+```
+
+2. Acesse o formulário:
+```
+http://localhost:8000/formulario_passaporte.html
+```
+
+3. Instale a extensão Tampermonkey no seu navegador
+4. Adicione o script `preenchimento_passaporte.user.js` ao Tampermonkey
+5. No formulário, use o menu no canto inferior direito para:
+   - Selecionar usuários predefinidos
+   - Usar dados aleatórios
+
+### Usuários Predefinidos
+- João Silva Santos (Brasileiro)
+- Maria Oliveira Costa (Brasileira)
+- Pedro Henrique Ferreira (Português)
+- Ana Carolina Lima (Italiana)
+- Carlos Eduardo Santos (Espanhol)
+
+## 2. Webcam Virtual
+
+### Arquivos
+- `generate_video_script.py` - Script Python para gerar o script da webcam
+- `webcam_virtual.user.js` - Script Tampermonkey gerado para webcam virtual
+
+### Como usar
+1. Execute o script Python para gerar o script da webcam:
+```bash
+python generate_video_script.py
+```
+
+2. O script acima irá gerar o arquivo `webcam_virtual.user.js`
+3. Instale este script no Tampermonkey
+4. Acesse sites que usam webcam (ex: webcamtests.com, Google Meet)
+5. Use o botão flutuante para ativar/desativar a webcam virtual
+
+## Diferenças entre os Scripts
+
+### Script de Formulário
+- Foco em preenchimento automático de dados
+- Múltiplos usuários predefinidos
+- Interface com menu de seleção
+- Ideal para testes de formulários
+
+### Script de Webcam
+- Simula uma webcam virtual
+- Usa vídeo em base64
+- Controles de ativação/desativação
+- Ideal para testes de videoconferência
 
 ## Requisitos
+- Python 3.x
+- Navegador com extensão Tampermonkey
+- Conexão com internet para acessar os sites
 
-- Python 3.8+
-- Chrome ou Firefox instalado
-- Webcam (opcional, apenas para gravação de novos vídeos)
-
-## Instalação
-
-1. Clone o repositório:
-```bash
-git clone [URL_DO_REPOSITÓRIO]
-cd form-automation
-```
-
-2. Instale as dependências:
-```bash
-pip install -r requirements.txt
-```
-
-3. Configure as variáveis de ambiente:
-Crie um arquivo `.env` com as seguintes variáveis:
-```
-FLASK_SECRET_KEY=sua_chave_secreta
-```
-
-## Uso
-
-1. Inicie o servidor:
-```bash
-python application/app.py
-```
-
-2. Para iniciar o monitoramento de um site:
-```bash
-curl -X POST http://localhost:5000/api/monitor/start \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://exemplo.com", "selector": ".vaga-elemento", "interval": 60}'
-```
-
-3. Para registrar um vídeo:
-```bash
-curl -X POST http://localhost:5000/api/video/register \
-  -F "video=@seu_video.mp4"
-```
-
-## Extensão do Navegador
-
-Em desenvolvimento. A extensão permitirá controlar o sistema diretamente do navegador.
-
-## Contribuição
-
-Contribuições são bem-vindas! Por favor, leia o arquivo CONTRIBUTING.md para detalhes sobre nosso código de conduta e processo de envio de pull requests.
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
+## Observações
+- Os scripts funcionam independentemente
+- Você pode usar um ou outro, ou ambos simultaneamente
+- O servidor Python local é necessário apenas para o formulário
+- A webcam virtual funciona em qualquer site que use webcam

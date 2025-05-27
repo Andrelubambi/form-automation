@@ -11,6 +11,50 @@
 (function () {
     'use strict';
 
+    // Lista de usuários predefinidos
+    const usuarios = {
+        'joao': {
+            nome: 'João Silva Santos',
+            passaporte: 'AB123456',
+            nacionalidade: 'Brasileiro(a)',
+            genero: 'M',
+            dataNascimento: '1990-05-15',
+            dataEmissao: '2023-12-01'
+        },
+        'maria': {
+            nome: 'Maria Oliveira Costa',
+            passaporte: 'CD789012',
+            nacionalidade: 'Brasileiro(a)',
+            genero: 'F',
+            dataNascimento: '1985-08-22',
+            dataEmissao: '2023-11-15'
+        },
+        'pedro': {
+            nome: 'Pedro Henrique Ferreira',
+            passaporte: 'EF345678',
+            nacionalidade: 'Português(a)',
+            genero: 'M',
+            dataNascimento: '1995-03-10',
+            dataEmissao: '2024-01-05'
+        },
+        'ana': {
+            nome: 'Ana Carolina Lima',
+            passaporte: 'GH901234',
+            nacionalidade: 'Italiano(a)',
+            genero: 'F',
+            dataNascimento: '1988-11-30',
+            dataEmissao: '2023-10-20'
+        },
+        'carlos': {
+            nome: 'Carlos Eduardo Santos',
+            passaporte: 'IJ567890',
+            nacionalidade: 'Espanhol(a)',
+            genero: 'M',
+            dataNascimento: '1992-07-25',
+            dataEmissao: '2024-02-01'
+        }
+    };
+
     // Função para gerar data aleatória entre duas datas
     function randomDate(start, end) {
         return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
@@ -32,18 +76,6 @@
         return passport;
     }
 
-    // Lista de nomes para gerar aleatoriamente
-    const nomes = [
-        "João Silva",
-        "Maria Santos",
-        "Pedro Oliveira",
-        "Ana Souza",
-        "Carlos Ferreira",
-        "Juliana Lima",
-        "Roberto Costa",
-        "Patricia Almeida"
-    ];
-
     // Lista de nacionalidades
     const nacionalidades = [
         "Brasileiro(a)",
@@ -55,70 +87,109 @@
         "Argentino(a)"
     ];
 
-    // Função para preencher o formulário
-    function preencherFormulario() {
-        // Nome
-        document.getElementById('nome').value = nomes[Math.floor(Math.random() * nomes.length)];
+    // Função para preencher o formulário com dados de um usuário específico
+    function preencherFormulario(usuario) {
+        const dados = usuarios[usuario];
 
-        // Passaporte
-        document.getElementById('passaporte').value = generatePassportNumber();
+        // Preenche os campos com os dados do usuário
+        document.getElementById('nome').value = dados.nome;
+        document.getElementById('passaporte').value = dados.passaporte;
+        document.getElementById('nacionalidade').value = dados.nacionalidade;
+        document.getElementById('genero').value = dados.genero;
+        document.getElementById('data_nascimento').value = dados.dataNascimento;
+        document.getElementById('data_emissao').value = dados.dataEmissao;
 
-        // Nacionalidade
-        document.getElementById('nacionalidade').value = nacionalidades[Math.floor(Math.random() * nacionalidades.length)];
-
-        // Gênero
-        const generos = ['M', 'F'];
-        document.getElementById('genero').value = generos[Math.floor(Math.random() * generos.length)];
-
-        // Data de Nascimento (entre 18 e 70 anos atrás)
-        const hoje = new Date();
-        const dataNascimento = randomDate(
-            new Date(hoje.getFullYear() - 70, hoje.getMonth(), hoje.getDate()),
-            new Date(hoje.getFullYear() - 18, hoje.getMonth(), hoje.getDate())
-        );
-        document.getElementById('data_nascimento').value = dataNascimento.toISOString().split('T')[0];
-
-        // Dispara evento para calcular idade
+        // Dispara eventos para calcular idade e data de validade
         const eventChange = new Event('change');
         document.getElementById('data_nascimento').dispatchEvent(eventChange);
-
-        // Data de Emissão (últimos 6 meses)
-        const dataEmissao = randomDate(
-            new Date(hoje.getFullYear(), hoje.getMonth() - 6, hoje.getDate()),
-            hoje
-        );
-        document.getElementById('data_emissao').value = dataEmissao.toISOString().split('T')[0];
-
-        // Dispara evento para calcular data de validade
         document.getElementById('data_emissao').dispatchEvent(eventChange);
     }
 
-    // Criar botão flutuante
-    const botaoFloat = document.createElement('div');
-    botaoFloat.style.cssText = `
+    // Criar menu flutuante
+    const menuContainer = document.createElement('div');
+    menuContainer.style.cssText = `
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background-color: #2980b9;
-        color: white;
-        padding: 15px 25px;
+        background-color: white;
         border-radius: 5px;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         z-index: 9999;
         font-family: Arial, sans-serif;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     `;
-    botaoFloat.innerHTML = 'Preencher Formulário';
-    botaoFloat.onclick = preencherFormulario;
 
-    // Adicionar botão à página
-    document.body.appendChild(botaoFloat);
+    // Adicionar título
+    const titulo = document.createElement('div');
+    titulo.style.cssText = `
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        text-align: center;
+    `;
+    titulo.innerHTML = 'Selecione um Usuário';
+    menuContainer.appendChild(titulo);
 
-    // Adicionar hover effect
-    botaoFloat.addEventListener('mouseover', function () {
-        this.style.backgroundColor = '#3498db';
+    // Criar botões para cada usuário
+    Object.keys(usuarios).forEach(usuario => {
+        const botao = document.createElement('button');
+        botao.style.cssText = `
+            background-color: #2980b9;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        `;
+        botao.innerHTML = usuarios[usuario].nome;
+        botao.onclick = () => preencherFormulario(usuario);
+
+        // Adicionar hover effect
+        botao.addEventListener('mouseover', function () {
+            this.style.backgroundColor = '#3498db';
+        });
+        botao.addEventListener('mouseout', function () {
+            this.style.backgroundColor = '#2980b9';
+        });
+
+        menuContainer.appendChild(botao);
     });
-    botaoFloat.addEventListener('mouseout', function () {
-        this.style.backgroundColor = '#2980b9';
+
+    // Adicionar botão para dados aleatórios
+    const botaoAleatorio = document.createElement('button');
+    botaoAleatorio.style.cssText = `
+        background-color: #27ae60;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 5px;
+        transition: background-color 0.3s;
+    `;
+    botaoAleatorio.innerHTML = 'Dados Aleatórios';
+    botaoAleatorio.onclick = () => {
+        const usuarios_lista = Object.keys(usuarios);
+        const usuario_aleatorio = usuarios_lista[Math.floor(Math.random() * usuarios_lista.length)];
+        preencherFormulario(usuario_aleatorio);
+    };
+
+    // Adicionar hover effect para botão aleatório
+    botaoAleatorio.addEventListener('mouseover', function () {
+        this.style.backgroundColor = '#2ecc71';
     });
+    botaoAleatorio.addEventListener('mouseout', function () {
+        this.style.backgroundColor = '#27ae60';
+    });
+
+    menuContainer.appendChild(botaoAleatorio);
+
+    // Adicionar menu à página
+    document.body.appendChild(menuContainer);
 })(); 
