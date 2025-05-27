@@ -1,8 +1,26 @@
-// ==UserScript==
-// @name         Simulador de Webcam Virtual
+import base64
+import os
+import sys
+
+def converter_video_para_script():
+    # Caminho do vídeo (ajuste para o caminho do seu vídeo)
+    video_path = os.path.expanduser("~/Videos/Gravações de Ecrã/Gravação de Ecrã 2025-05-27 122454.mp4")
+    
+    if not os.path.exists(video_path):
+        print(f"Erro: Arquivo não encontrado: {video_path}")
+        return
+    
+    # Ler o vídeo e converter para base64
+    print("Convertendo vídeo para base64...")
+    with open(video_path, 'rb') as video_file:
+        video_base64 = base64.b64encode(video_file.read()).decode('utf-8')
+    
+    # Criar o script Tampermonkey
+    script_template = '''// ==UserScript==
+// @name         Simulador de Webcam Virtual (Com Vídeo Embutido)
 // @namespace    http://tampermonkey.net/
-// @version      0.4
-// @description  Simula uma webcam usando um vídeo pré-gravado
+// @version      0.5
+// @description  Simula uma webcam usando um vídeo pré-gravado (embutido)
 // @author       Você
 // @match        https://*/*
 // @match        http://*/*
@@ -20,7 +38,9 @@
     let originalGetUserMedia = null;
     let videoElement = null;
     let isActive = true;
-    let videoURL = null;
+
+    // Vídeo em base64 (embutido)
+    const videoBase64 = "''' + video_base64 + '''";
 
     // Adicionar estilos CSS
     GM_addStyle(`
@@ -34,7 +54,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             font-family: Arial, sans-serif;
-            min-width: 200px;
         }
         .webcam-virtual-controls button {
             padding: 8px 16px;
@@ -44,14 +63,9 @@
             background: #2196F3;
             color: white;
             cursor: pointer;
-            width: 100%;
         }
         .webcam-virtual-controls button:hover {
             background: #1976D2;
-        }
-        .webcam-virtual-controls input[type="file"] {
-            margin: 10px 0;
-            width: 100%;
         }
         .webcam-virtual-status {
             margin-bottom: 10px;
@@ -62,12 +76,6 @@
             color: #666;
             margin-top: 5px;
         }
-        .video-preview {
-            margin-top: 10px;
-            width: 100%;
-            max-width: 200px;
-            display: none;
-        }
     `);
 
     async function initializeVideo() {
@@ -76,13 +84,18 @@
             videoElement.muted = true;
             videoElement.autoplay = true;
             videoElement.loop = true;
-
-            if (!videoURL) {
-                throw new Error('Nenhum vídeo selecionado');
+            
+            // Converter base64 para Blob e criar URL
+            const byteString = atob(videoBase64);
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
             }
-
-            videoElement.src = videoURL;
-
+            const blob = new Blob([ab], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            videoElement.src = url;
+            
             try {
                 await videoElement.play();
                 videoElement.currentTime = 0;
@@ -110,16 +123,12 @@
             }
 
             try {
-                if (!videoURL) {
-                    throw new Error('Por favor, selecione um arquivo de vídeo primeiro');
-                }
-
                 debugInfo = 'Iniciando webcam virtual...';
                 updateDebugInfo(debugInfo);
 
                 const video = await initializeVideo();
-
-                debugInfo += '\nCriando canvas...';
+                
+                debugInfo += '\\nCriando canvas...';
                 updateDebugInfo(debugInfo);
 
                 const canvas = document.createElement('canvas');
@@ -127,7 +136,7 @@
                 canvas.width = 1280;
                 canvas.height = 720;
 
-                debugInfo += '\nCriando stream virtual...';
+                debugInfo += '\\nCriando stream virtual...';
                 updateDebugInfo(debugInfo);
 
                 const stream = canvas.captureStream(30);
@@ -142,12 +151,12 @@
                 }
                 updateCanvas();
 
-                debugInfo += '\nWebcam virtual ativada com sucesso!';
+                debugInfo += '\\nWebcam virtual ativada com sucesso!';
                 updateDebugInfo(debugInfo);
 
                 return stream;
             } catch (error) {
-                debugInfo += '\nErro: ' + error.message;
+                debugInfo += '\\nErro: ' + error.message;
                 updateDebugInfo(debugInfo);
                 console.error('Erro na webcam virtual:', error);
                 return await originalGetUserMedia.call(navigator.mediaDevices, constraints);
@@ -162,32 +171,6 @@
         }
     }
 
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (file) {
-            // Revogar URL anterior se existir
-            if (videoURL) {
-                URL.revokeObjectURL(videoURL);
-            }
-
-            videoURL = URL.createObjectURL(file);
-
-            // Atualizar preview
-            const preview = document.querySelector('.video-preview');
-            if (preview) {
-                preview.src = videoURL;
-                preview.style.display = 'block';
-            }
-
-            // Resetar vídeo atual
-            if (videoElement) {
-                videoElement.src = videoURL;
-            }
-
-            updateDebugInfo('Vídeo carregado: ' + file.name);
-        }
-    }
-
     function adicionarControles() {
         const div = document.createElement('div');
         div.className = 'webcam-virtual-controls';
@@ -196,19 +179,9 @@
         status.className = 'webcam-virtual-status';
         status.textContent = 'Webcam Virtual: Ativa';
 
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'video/*';
-        fileInput.onchange = handleFileSelect;
-
-        const preview = document.createElement('video');
-        preview.className = 'video-preview';
-        preview.muted = true;
-        preview.controls = true;
-
         const debug = document.createElement('div');
         debug.className = 'debug-info';
-        debug.textContent = 'Selecione um arquivo de vídeo...';
+        debug.textContent = 'Webcam virtual pronta!';
 
         const botao = document.createElement('button');
         botao.textContent = 'Desativar Webcam Virtual';
@@ -224,13 +197,11 @@
                 interceptMediaDevices();
                 status.textContent = 'Webcam Virtual: Ativa';
                 botao.textContent = 'Desativar Webcam Virtual';
-                debug.textContent = videoURL ? 'Webcam virtual reativada' : 'Selecione um arquivo de vídeo...';
+                debug.textContent = 'Webcam virtual reativada';
             }
         };
 
         div.appendChild(status);
-        div.appendChild(fileInput);
-        div.appendChild(preview);
         div.appendChild(botao);
         div.appendChild(debug);
         document.body.appendChild(div);
@@ -245,4 +216,19 @@
     } else {
         adicionarControles();
     }
-})(); 
+})();'''
+    
+    # Salvar o script
+    output_file = 'webcam_virtual_com_video.user.js'
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(script_template)
+    
+    print(f"\nScript gerado com sucesso: {output_file}")
+    print(f"Tamanho do arquivo: {os.path.getsize(output_file) / 1024 / 1024:.2f} MB")
+    print("\nInstruções:")
+    print("1. Instale o script gerado no Tampermonkey")
+    print("2. Acesse o site de teste de webcam")
+    print("3. Permita o acesso à câmera quando solicitado")
+
+if __name__ == '__main__':
+    converter_video_para_script() 
