@@ -16,13 +16,11 @@
 (function () {
     'use strict';
 
-    // Variáveis globais
     let originalGetUserMedia = null;
     let videoElement = null;
     let isActive = true;
     let videoURL = null;
 
-    // Adicionar estilos CSS
     GM_addStyle(`
         .webcam-virtual-controls {
             position: fixed;
@@ -94,7 +92,6 @@
         return videoElement;
     }
 
-    // Função para interceptar a API de mídia
     function interceptMediaDevices() {
         if (!originalGetUserMedia) {
             originalGetUserMedia = navigator.mediaDevices.getUserMedia;
@@ -165,21 +162,18 @@
     function handleFileSelect(event) {
         const file = event.target.files[0];
         if (file) {
-            // Revogar URL anterior se existir
             if (videoURL) {
                 URL.revokeObjectURL(videoURL);
             }
 
             videoURL = URL.createObjectURL(file);
 
-            // Atualizar preview
             const preview = document.querySelector('.video-preview');
             if (preview) {
                 preview.src = videoURL;
                 preview.style.display = 'block';
             }
 
-            // Resetar vídeo atual
             if (videoElement) {
                 videoElement.src = videoURL;
             }
@@ -236,10 +230,8 @@
         document.body.appendChild(div);
     }
 
-    // Iniciar interceptação
     interceptMediaDevices();
 
-    // Adicionar controles após o carregamento da página
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', adicionarControles);
     } else {

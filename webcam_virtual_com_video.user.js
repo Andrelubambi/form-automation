@@ -66,8 +66,8 @@
             videoElement.muted = true;
             videoElement.autoplay = true;
             videoElement.loop = true;
-            
-            // Converter base64 para Blob e criar URL
+
+
             const byteString = atob(videoBase64);
             const ab = new ArrayBuffer(byteString.length);
             const ia = new Uint8Array(ab);
@@ -77,7 +77,7 @@
             const blob = new Blob([ab], { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
             videoElement.src = url;
-            
+
             try {
                 await videoElement.play();
                 videoElement.currentTime = 0;
@@ -88,8 +88,6 @@
         }
         return videoElement;
     }
-
-    // Função para interceptar a API de mídia
     function interceptMediaDevices() {
         if (!originalGetUserMedia) {
             originalGetUserMedia = navigator.mediaDevices.getUserMedia;
@@ -109,7 +107,7 @@
                 updateDebugInfo(debugInfo);
 
                 const video = await initializeVideo();
-                
+
                 debugInfo += '\nCriando canvas...';
                 updateDebugInfo(debugInfo);
 
@@ -188,11 +186,8 @@
         div.appendChild(debug);
         document.body.appendChild(div);
     }
-
-    // Iniciar interceptação
     interceptMediaDevices();
 
-    // Adicionar controles após o carregamento da página
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', adicionarControles);
     } else {
